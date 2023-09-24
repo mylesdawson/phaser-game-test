@@ -127,7 +127,7 @@ export default class Game extends Phase.Scene {
     this.snowmen.forEach((snowman) => snowman.destroy());
   }
 
-  update(t: number, dt: number) {
+  update(_t: number, dt: number) {
     this.playerController.update(dt);
     this.snowmen.forEach((snowman) => {
       snowman.update(dt);
