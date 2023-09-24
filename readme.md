@@ -1,3 +1,11 @@
+
+
+# Its running here!
+
+https://mylesdawson.github.io/phaser-game-test/
+
+Copied this tutorial: https://www.youtube.com/watch?v=5ICZ60bwfmg&list=PLNwtXgWIx3rg3J4XyuDVhjU81dZbJtVAU
+
 # Phaser 3 + TypeScript + Vite.js Template
 > Make Phaser 3 games with TypeScript and modern frontend tooling.
 
