@@ -159,7 +159,6 @@ export default class PlayerController {
     }
 
     this.health = Phaser.Math.Clamp(this.health - 50, 0, 100);
-    console.log(this.health);
     events.emit("health-changed", this.health);
 
     const startColor = Phaser.Display.Color.ValueToColor(0xffffff);

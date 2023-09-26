@@ -2,6 +2,7 @@ import Phase from "phaser";
 import PlayerController from "./PlayerController";
 import ObstaclesController from "./ObstaclesController";
 import SnowmanController from "./SnowmanController";
+import { sharedInstance as events } from "./EventCenter";
 
 export default class Game extends Phase.Scene {
   private cursors!: Phase.Types.Input.Keyboard.CursorKeys;
@@ -19,10 +20,12 @@ export default class Game extends Phase.Scene {
     this.obstacles = new ObstaclesController();
     this.snowmen = [];
 
+    events.once("restart-game", this.restartGame, this);
+
     this.events.once(Phaser.Scenes.Events.DESTROY, () => {
       this.destroy();
+      events.off("restart-game", this.restartGame, this);
     });
-    ``;
   }
 
   preload() {
@@ -38,6 +41,7 @@ export default class Game extends Phase.Scene {
 
   create() {
     this.scene.launch("ui");
+
     const map = this.make.tilemap({ key: "tilemap" });
     const tileset = map.addTilesetImage("iceworld", "tiles");
 
@@ -53,6 +57,7 @@ export default class Game extends Phase.Scene {
 
       switch (name) {
         case "penguin-spawn": {
+          console.log("penguin-spawn!");
           this.penguin = this.matter.add
             .sprite(x + width * 0.5, y + height * 0.5, "penguin")
             .setFixedRotation();
@@ -125,6 +130,7 @@ export default class Game extends Phase.Scene {
 
   destroy() {
     this.snowmen.forEach((snowman) => snowman.destroy());
+    this.penguin.destroy();
   }
 
   update(_t: number, dt: number) {
@@ -132,5 +138,9 @@ export default class Game extends Phase.Scene {
     this.snowmen.forEach((snowman) => {
       snowman.update(dt);
     });
+  }
+
+  restartGame() {
+    this.scene.restart();
   }
 }

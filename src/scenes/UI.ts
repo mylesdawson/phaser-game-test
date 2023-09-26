@@ -3,10 +3,11 @@ import { sharedInstance as events } from "./EventCenter";
 
 export default class UI extends Phase.Scene {
   private starsLabel!: Phase.GameObjects.Text;
-  private totalStars = 0;
   private starsCollected = 0;
   private graphics!: Phaser.GameObjects.Graphics;
   private lastHealth = 100;
+  private gameOver!: Phaser.GameObjects.Text;
+  private restart!: Phaser.GameObjects.Text;
 
   constructor() {
     super({
@@ -26,16 +27,32 @@ export default class UI extends Phase.Scene {
       fontSize: "32px",
     });
 
+    this.gameOver = this.add.text(200, 200, "Game Over!", {
+      fontSize: "40px",
+    });
+    this.gameOver.visible = false;
+
+    this.restart = this.add
+      .text(200, 250, "Restart?", {
+        fontSize: "40px",
+        backgroundColor: "#ffffff",
+        color: "#000000",
+      })
+      .setInteractive()
+      .on("pointerdown", () => {
+        events.emit("restart-game");
+        // this.scene.restart();
+      });
+    this.restart.setInteractive();
+    this.restart.visible = false;
+
     events.on("star-collected", this.handleStarCollected, this);
 
     events.on("health-changed", this.handleHealthChanged, this);
 
-    events.on("star-spawn", this.handleStarSpawn, this);
-
     this.events.once(Phaser.Scenes.Events.DESTROY, () => {
       events.off("star-collected", this.handleStarCollected, this);
       events.off("health-changed", this.handleHealthChanged, this);
-      events.off("star-spawn", this.handleStarSpawn, this);
     });
   }
 
@@ -64,27 +81,17 @@ export default class UI extends Phase.Scene {
         this.setHealthBar(value);
       },
     });
-    this.lastHealth = value;
-  }
 
-  private handleStarSpawn() {
-    this.totalStars += 1;
+    if (value === 0) {
+      this.gameOver.visible = true;
+      this.restart.visible = true;
+    }
+
+    this.lastHealth = value;
   }
 
   private handleStarCollected() {
     ++this.starsCollected;
     this.starsLabel.text = `Stars: ${this.starsCollected}`;
-
-    console.log({
-      collected: this.starsCollected,
-      total: this.totalStars,
-    });
-
-    // if (this.starsCollected >= this.totalStars) {
-    //   const { width = 0, height = 0 } = this.sys.canvas;
-    //   this.add.text(width * 0.5, height * 0.5, "Game Win!", {
-    //     fontSize: "32px",
-    //   });
-    // }
   }
 }
