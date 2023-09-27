@@ -8,6 +8,7 @@ export default class Game extends Phase.Scene {
   private cursors!: Phase.Types.Input.Keyboard.CursorKeys;
   private penguin!: Phase.Physics.Matter.Sprite;
   private snowmen: SnowmanController[] = [];
+  private stars: Phase.Physics.Matter.Sprite[] = [];
   private obstacles!: ObstaclesController;
   private playerController!: PlayerController;
 
@@ -19,6 +20,7 @@ export default class Game extends Phase.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.obstacles = new ObstaclesController();
     this.snowmen = [];
+    this.stars = [];
 
     events.once("restart-game", this.restartGame, this);
 
@@ -57,7 +59,6 @@ export default class Game extends Phase.Scene {
 
       switch (name) {
         case "penguin-spawn": {
-          console.log("penguin-spawn!");
           this.penguin = this.matter.add
             .sprite(x + width * 0.5, y + height * 0.5, "penguin")
             .setFixedRotation();
@@ -74,12 +75,14 @@ export default class Game extends Phase.Scene {
           break;
         }
         case "star-spawn": {
+          console.log("star spawn!");
           const star = this.matter.add.sprite(x, y, "star", undefined, {
             isStatic: true,
             isSensor: true,
           });
 
           star.setData("type", "star");
+          this.stars.push(star);
 
           break;
         }
@@ -130,6 +133,7 @@ export default class Game extends Phase.Scene {
 
   destroy() {
     this.snowmen.forEach((snowman) => snowman.destroy());
+    this.stars.forEach((star) => star.destroy());
     this.penguin.destroy();
   }
 
@@ -141,6 +145,7 @@ export default class Game extends Phase.Scene {
   }
 
   restartGame() {
+    this.destroy();
     this.scene.restart();
   }
 }

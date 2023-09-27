@@ -1,18 +1,16 @@
-import Phase from "phaser";
+import Phaser from "phaser";
 import { sharedInstance as events } from "./EventCenter";
 
-export default class UI extends Phase.Scene {
-  private starsLabel!: Phase.GameObjects.Text;
+export default class UI extends Phaser.Scene {
+  private starsLabel!: Phaser.GameObjects.Text;
   private starsCollected = 0;
   private graphics!: Phaser.GameObjects.Graphics;
   private lastHealth = 100;
   private gameOver!: Phaser.GameObjects.Text;
-  private restart!: Phaser.GameObjects.Text;
+  private restartText!: Phaser.GameObjects.Text;
 
   constructor() {
-    super({
-      key: "ui",
-    });
+    super("ui");
   }
 
   init() {
@@ -32,7 +30,7 @@ export default class UI extends Phase.Scene {
     });
     this.gameOver.visible = false;
 
-    this.restart = this.add
+    this.restartText = this.add
       .text(200, 250, "Restart?", {
         fontSize: "40px",
         backgroundColor: "#ffffff",
@@ -40,14 +38,12 @@ export default class UI extends Phase.Scene {
       })
       .setInteractive()
       .on("pointerdown", () => {
-        events.emit("restart-game");
-        // this.scene.restart();
+        this.restart();
       });
-    this.restart.setInteractive();
-    this.restart.visible = false;
+    this.restartText.setInteractive();
+    this.restartText.visible = false;
 
     events.on("star-collected", this.handleStarCollected, this);
-
     events.on("health-changed", this.handleHealthChanged, this);
 
     this.events.once(Phaser.Scenes.Events.DESTROY, () => {
@@ -56,9 +52,20 @@ export default class UI extends Phase.Scene {
     });
   }
 
+  private restart() {
+    this.starsLabel.destroy();
+    this.gameOver.destroy();
+    this.restartText.destroy();
+    events.off("star-collected", this.handleStarCollected, this);
+    events.off("health-changed", this.handleHealthChanged, this);
+    events.emit("restart-game");
+    // Don't restart this scene because its a child of other scenes and will duplicate!
+    // this.scene.restart();
+  }
+
   private setHealthBar(value: number) {
     const BAR_WIDTH = 200;
-    const fillHealth = Phase.Math.Clamp(value * 2, 0, BAR_WIDTH);
+    const fillHealth = Phaser.Math.Clamp(value * 2, 0, BAR_WIDTH);
 
     this.graphics.clear();
     this.graphics.fillStyle(0x808080);
@@ -84,13 +91,14 @@ export default class UI extends Phase.Scene {
 
     if (value === 0) {
       this.gameOver.visible = true;
-      this.restart.visible = true;
+      this.restartText.visible = true;
     }
 
     this.lastHealth = value;
   }
 
   private handleStarCollected() {
+    console.log("wow! star collected!");
     ++this.starsCollected;
     this.starsLabel.text = `Stars: ${this.starsCollected}`;
   }
