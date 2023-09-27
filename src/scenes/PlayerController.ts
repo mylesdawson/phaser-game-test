@@ -10,6 +10,7 @@ export default class PlayerController {
   private obstacles!: ObstaclesController;
   private scene!: Phaser.Scene;
   private health = 100;
+  private jumpSpacebarUp = false;
 
   private lastSnowman!: Phaser.Physics.Matter.Sprite;
 
@@ -244,8 +245,9 @@ export default class PlayerController {
   }
 
   private jumpOnEnter() {
+    this.jumpSpacebarUp = false;
     this.sprite.play("player-jump");
-    this.sprite.setVelocityY(-12);
+    this.sprite.setVelocityY(-16);
   }
 
   private jumpOnUpdate() {
@@ -257,6 +259,13 @@ export default class PlayerController {
     } else if (this.cursors.right.isDown) {
       this.sprite.flipX = false;
       this.sprite.setVelocityX(SPEED);
+    }
+
+    if (!this.jumpSpacebarUp && this.cursors.space.isUp) {
+      if (this.sprite.body.velocity.y < 0) {
+        this.sprite.setVelocityY(-(16 * 0.2));
+      }
+      this.jumpSpacebarUp = true;
     }
   }
 
