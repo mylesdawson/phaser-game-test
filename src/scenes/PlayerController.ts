@@ -51,11 +51,20 @@ export default class PlayerController {
       .addState("snowman-stomp", {
         onEnter: this.snowmanStompOnEnter,
       })
+      .addState("game-win", {
+        onEnter: () => null,
+      })
       .setState("idle");
 
     this.sprite.setOnCollide((data: MatterJS.ICollisionPair) => {
       const body = data.bodyB as MatterJS.BodyType;
       const gameObject = body.gameObject;
+
+      if (this.obstacles.is("gameWin", body)) {
+        this.stateMachine.setState("game-win");
+        events.emit("game-win");
+        return;
+      }
 
       if (this.obstacles.is("spikes", body)) {
         this.stateMachine.setState("spike-hit");

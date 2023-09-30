@@ -11,6 +11,7 @@ export default class Game extends Phase.Scene {
   private stars: Phase.Physics.Matter.Sprite[] = [];
   private obstacles!: ObstaclesController;
   private playerController!: PlayerController;
+  private gameWin!: MatterJS.BodyType;
 
   constructor() {
     super("game");
@@ -49,6 +50,7 @@ export default class Game extends Phase.Scene {
 
     const ground = map.createLayer("ground", tileset);
     ground.setCollisionByProperty({ collides: true });
+    ground.setDepth(1);
 
     map.createLayer("obstacles", tileset);
 
@@ -71,6 +73,7 @@ export default class Game extends Phase.Scene {
           );
 
           this.cameras.main.startFollow(this.penguin);
+          this.cameras.main.setZoom(1);
 
           break;
         }
@@ -123,6 +126,22 @@ export default class Game extends Phase.Scene {
 
           this.snowmen.push(new SnowmanController(this, snowman));
           this.obstacles.add("snowman", snowman.body as MatterJS.BodyType);
+          break;
+        }
+        case "game-win": {
+          this.gameWin = this.matter.add.rectangle(
+            x + 0.5 * width,
+            y + 0.5 * height,
+            width,
+            height,
+            {
+              isStatic: true,
+              isSensor: true,
+            }
+          );
+
+          this.obstacles.add("gameWin", this.gameWin);
+
           break;
         }
       }
