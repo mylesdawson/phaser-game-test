@@ -12,6 +12,10 @@ export default class Game extends Phase.Scene {
   private obstacles!: ObstaclesController;
   private playerController!: PlayerController;
   private gameWin!: MatterJS.BodyType;
+  private backgrounds: {
+    ratioX: number;
+    sprite: Phaser.GameObjects.TileSprite;
+  }[] = [];
 
   constructor() {
     super("game");
@@ -32,6 +36,13 @@ export default class Game extends Phase.Scene {
   }
 
   preload() {
+    this.load.image("sky", "assets/Sky.png");
+    this.load.image("mountains", "assets/Mountains.png");
+    this.load.image("middle", "assets/Middle.png");
+    this.load.image("foreground", "assets/Foreground.png");
+    this.load.image("ground1", "assets/Ground_01.png");
+    this.load.image("ground2", "assets/Ground_02.png");
+
     this.load.atlas("penguin", "assets/penguin.png", "assets/penguin.json");
     this.load.image("tiles", "assets/sheet.png");
     this.load.tilemapTiledJSON("tilemap", "assets/game.json");
@@ -43,7 +54,66 @@ export default class Game extends Phase.Scene {
   }
 
   create() {
+    const { width, height } = this.scale;
+    console.log({ width, height });
     this.scene.launch("ui");
+
+    const sky = this.add
+      .tileSprite(0, 0, width, height, "sky")
+      .setOrigin(0, 0)
+      .setScrollFactor(0, 0);
+
+    const mountains = this.add
+      .tileSprite(0, 0, width, height, "mountains")
+      .setOrigin(0, 0)
+      .setScrollFactor(0, 0);
+
+    const middle = this.add
+      .tileSprite(0, 0, width, height, "middle")
+      .setOrigin(0, 0)
+      .setScrollFactor(0, 0);
+
+    const foreground = this.add
+      .tileSprite(0, 0, width, height, "foreground")
+      .setOrigin(0, 0)
+      .setScrollFactor(0, 0);
+
+    // const ground1 = this.add
+    //   .tileSprite(0, 0, width, height, "ground1")
+    //   .setOrigin(0, 0)
+    //   .setScrollFactor(0, 0);
+
+    // const ground2 = this.add
+    //   .tileSprite(0, 0, width, height, "ground2")
+    //   .setOrigin(0, 0)
+    //   .setScrollFactor(0, 0);
+
+    this.backgrounds = [
+      {
+        ratioX: 0,
+        sprite: sky,
+      },
+      {
+        ratioX: 0.01,
+        sprite: mountains,
+      },
+      {
+        ratioX: 0.05,
+        sprite: middle,
+      },
+      {
+        ratioX: 0.1,
+        sprite: foreground,
+      },
+      // {
+      //   ratioX: 1,
+      //   sprite: ground1,
+      // },
+      // {
+      //   ratioX: 1,
+      //   sprite: ground2,
+      // },
+    ];
 
     const map = this.make.tilemap({ key: "tilemap" });
     const tileset = map.addTilesetImage("iceworld", "tiles");
@@ -161,6 +231,11 @@ export default class Game extends Phase.Scene {
     this.snowmen.forEach((snowman) => {
       snowman.update(dt);
     });
+
+    for (let i = 0; i < this.backgrounds.length; i++) {
+      const bg = this.backgrounds[i];
+      bg.sprite.tilePositionX = this.cameras.main.scrollX * bg.ratioX;
+    }
   }
 
   restartGame() {
